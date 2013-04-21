@@ -2,7 +2,7 @@ package-as: LibFunctional-1.0
 enable-nolib-creation: no
 
 ignore:
-	tests.lua
+	- tests.lua
 
 externals:
     libs/LibStub:
