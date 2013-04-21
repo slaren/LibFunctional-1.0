@@ -232,7 +232,7 @@ lib.all = function(l, fn)
 end
 lib.every = lib.all
 
---- Returns true if any value in l satisfy the truth function fn, false otherwise.
+--- Returns true if any value in l satisfies the truth function fn, false otherwise.
 -- aliases: some
 -- @param l the input list.
 lib.any = function(l, fn)
@@ -272,7 +272,7 @@ end
 --- Returns a copy of the list l with any the duplicate values removed.
 -- @param l the input list
 -- @param is_sorted an optional argument specifying if the list is sorted, allowing to use a more efficient algorithm.
--- @param fn an optional function that applied to each value in the list before performing the comparison.
+-- @param fn an optional function that is applied to each value in the list before performing the comparison.
 lib.uniq = function(l, is_sorted, fn)
 	local lm = fn and lib.map(l, fn) or l
 	local r = {}
