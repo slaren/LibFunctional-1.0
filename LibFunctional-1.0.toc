@@ -1,0 +1,8 @@
+## Interface: 50200
+## Title: Lib: Functional-1.0
+## Notes: Helper functions to enable functional style programming in lua
+## Author: Slaren
+## X-Category: Library
+
+Libs\LibStub\LibStub.lua
+functional.lua
