@@ -174,12 +174,13 @@ lib.binary_search = function(l, v)
 	return l[i] == v and v or nil
 end
 
---- Inserts a value //v// in a sorted list //l//.
+--- Inserts a value //v// in a sorted list //l// and returns it.
 -- @param l the input sorted list.
 -- @param v the value to insert.
 lib.sorted_insert = function(l, v)
 	local i = lib.sorted_index(l, v)
 	tinsert(l, i, v)
+	return l
 end
 
 --- Returns a reduction of the list //l// based on the left associative application of the function //fn//.
@@ -277,7 +278,6 @@ lib.concat = function(...)
 			tinsert(r, l[i])
 		end
 	end
-
 	return r
 end
 
