@@ -2,7 +2,8 @@
 lib = require("functional");
 
 (function()
-	local function dump(v)
+	local function dump(t)
+		return "{ " .. table.concat(t, ", ") .. " }"
 	end
 
 	local function teq(t1, t2)
@@ -16,8 +17,8 @@ lib = require("functional");
 	local function test(t1, t2)
 		if not teq(t1, t2) then
 			print("test failed:")
-			print("\texpected: { " .. table.concat(t1, ", ") .. " }")
-			print("\tgot: { " .. table.concat(t2, ", ") .. " }")
+			print("\texpected: " .. dump(t1))
+			print("\tgot: " .. dump(t2))
 			return false
 		end
 		return true
@@ -83,10 +84,19 @@ lib = require("functional");
 	assert(true == fn.any(lst, function(v) return v > 3 end))
 	assert(false == fn.any(lst, function(v) return v > 10 end))
 
+	-- concat
+	assert(test({}, fn.concat()))
+	assert(test({}, fn.concat({}, {})))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2, 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2 }, { 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2 }, { 3, 4 } , { 5 })))
+
 	-- union
-	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2, 3, 4, 5 })))
-	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4, 5 })))
-	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4 } , { 5 })))
+	assert(test({}, fn.union()))
+	assert(test({}, fn.union({}, {})))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2, 3, 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 1, 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 1, 2, 3, 4 } , { 3, 5 })))
 
 	-- uniq
 	assert(test({ 2, 3, 1 }, fn.uniq({ 2, 3, 2, 1, 1 })))

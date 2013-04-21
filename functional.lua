@@ -12,8 +12,8 @@ local math_min, math_max, math_floor = math.min, math.max, math.floor
 
 -- table functions
 
---- returns a list of keys in the table t
--- @param t the input table
+--- Returns a list of keys in the table t.
+-- @param t the input table.
 lib.keys = function(t)
 	local r = {}
 	for k, _ in pairs(t) do
@@ -22,8 +22,8 @@ lib.keys = function(t)
 	return r
 end
 
---- returns a list of values in the table t
--- @param t the input table
+--- Returns a list of values in the table t.
+-- @param t the input table.
 lib.values = function(t)
 	local r = {}
 	for _, v in pairs(t) do
@@ -32,8 +32,8 @@ lib.values = function(t)
 	return r
 end
 
---- returns a list of { key, value } pairs in the table t
--- @param t the input table
+--- Returns a list of { key, value } pairs in the table t.
+-- @param t the input table.
 lib.pairs = function(t)
 	local r = {}
 	for k, v in pairs(t) do
@@ -44,8 +44,8 @@ end
 
 -- list functions
 
---- returns a shallow copy of the list l
--- @param l the input list
+--- Returns a shallow copy of the list l.
+-- @param l the input list.
 lib.clone = function(l)
 	local r = {}
 	for i = 1, #l do
@@ -54,10 +54,10 @@ lib.clone = function(l)
 	return r
 end
 
---- calls function fn on each value
+--- Calls function fn on each value.
 -- aliases: for_each
--- @param l the input list
--- @param fn the function called with each value
+-- @param l the input list.
+-- @param fn the function called with each value.
 lib.each = function(l, fn)
 	local len = #l
 	for i = 1, len do
@@ -68,9 +68,9 @@ lib.each = function(l, fn)
 end
 lib.for_each = lib.each
 
---- returns a new list with the results of fn applied to all items in a list
--- @param l the input list
--- @param fn the function called with each value
+--- Returns a new list with the results of fn applied to all items in a list.
+-- @param l the input list.
+-- @param fn the function called with each value.
 lib.map = function(l, fn)
 	local r = {}
 	local len = #l
@@ -80,9 +80,9 @@ lib.map = function(l, fn)
 	return r
 end
 
---- return a list of values in the list l that pass a truth test fn
--- @param l the input list
--- @param fn the function called with each value
+--- Returns a list of values in the list l that pass a truth test fn.
+-- @param l the input list.
+-- @param fn the function called with each value.
 lib.filter = function(l, fn)
 	local r = {}
 	local len = #l
@@ -94,7 +94,7 @@ lib.filter = function(l, fn)
 	return r
 end
 
---- returns a reversed copy of the list l
+--- Returns a reversed copy of the list l.
 -- @param l the input list
 lib.reverse = function(l)
 	local r = {}
@@ -105,7 +105,7 @@ lib.reverse = function(l)
 	return r
 end
 
---- returns the first value in list l that passes the truth test fn
+--- Returns the first value in list l that passes the truth test fn.
 -- @param l the input list
 -- @param fn the truth test function
 lib.find = function(l, fn)
@@ -119,9 +119,9 @@ lib.find = function(l, fn)
 	end
 end
 
---- returns true if the value v is present in the list l, false otherwise
--- @param l the input list
--- @param v the value
+--- Returns true if the value v is present in the list l, false otherwise.
+-- @param l the input list.
+-- @param v the value.
 lib.contains = function(l, v)
 	local r = {}
 	local len = #l
@@ -150,26 +150,26 @@ lib.sorted_index = function(l, v)
 	return lo
 end
 
---- performs a binary search on list l for value v and returns it if found
--- @param l the input list
--- @param v the value to search for
+--- Performs a binary search on list l for value v and returns it if found.
+-- @param l the input list.
+-- @param v the value to search for.
 lib.binary_search = function(l, v)
 	local i = lib.sorted_index(l, v)
 	return l[i] == v and v or nil
 end
 
---- inserts a value v in a sorted list l
--- @param l the input list
--- @param v the value to insert
+--- Inserts a value v in a sorted list l.
+-- @param l the input list.
+-- @param v the value to insert.
 lib.sorted_insert = function(l, v)
 	local i = lib.sorted_index(l, v)
 	tinsert(l, i, v)
 end
 
---- returns a reduction of the list based on the left associative application of the function fn to all the value of the list l
+--- Returns a reduction of the list based on the left associative application of the function fn to all the value of the list l.
 -- aliases: foldl
--- @param l the input list
--- @param fn a function receiving two values representing the result of the previous application of this function and the next value in the list l
+-- @param l the input list.
+-- @param fn a function receiving two values representing the result of the previous application of this function and the next value in the list l.
 -- @param initial an optional initial value to be passed together with the first value of the list l to the function fn. If omitted, the first call is passed the two first values in the list l instead.
 lib.reduce = function(l, fn, initial)
 	local s = initial and 1 or 2
@@ -182,42 +182,44 @@ lib.reduce = function(l, fn, initial)
 end
 lib.foldl = lib.reduce
 
---- returns a sum of all the values in the list l
--- @param l the input list
+--- Returns a sum of all the values in the list l.
+-- @param l the input list.
 lib.sum = function(l)
 	return lib.reduce(l, function(a, b) return a + b end)
 end
 
---- returns the minimum value in the list l
--- @param l the input list
+--- Returns the minimum value in the list l.
+-- @param l the input list.
 lib.min = function(l)
 	return lib.reduce(l, math_min)
 end
 
---- returns the maximum value in the list l
--- @param l the input list
+--- Returns the maximum value in the list l.
+-- @param l the input list.
 lib.max = function(l)
 	return lib.reduce(l, math_max)
 end
 
---- performs an in-place sort of the list l
+--- Performs an in-place sort of the list l.
 -- @param l the input list
-lib.sort = function(l, fn)
-	tsort(l, fn)
+-- @param comp an optional comparison function that receives two values and returns true when the first is less than the second
+lib.sort = function(l, comp)
+	tsort(l, comp)
 	return l
 end
 
---- returns a sorted copy of the list l
--- @param l the input list
-lib.sorted = function(l, fn)
+--- Returns a sorted copy of the list l.
+-- @param l the input list.
+-- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
+lib.sorted = function(l, comp)
 	local r = lib.clone(l)
-	tsort(r, fn)
+	tsort(r, comp)
 	return r
 end
 
---- returns true if all the values in l satisfy the truth function fn, false otherwise
+--- Returns true if all the values in l satisfy the truth function fn, false otherwise.
 -- aliases: every
--- @param l the input list
+-- @param l the input list.
 lib.all = function(l, fn)
 	local len = #l
 	for i = 1, len do
@@ -230,9 +232,9 @@ lib.all = function(l, fn)
 end
 lib.every = lib.all
 
---- returns true if any value in l satisfy the truth function fn, false otherwise
+--- Returns true if any value in l satisfy the truth function fn, false otherwise.
 -- aliases: some
--- @param l the input list
+-- @param l the input list.
 lib.any = function(l, fn)
 	local len = #l
 	for i = 1, len do
@@ -245,9 +247,9 @@ lib.any = function(l, fn)
 end
 lib.some = lib.any
 
---- returns the union of all the lists passed
--- @param ... two or more input lists
-lib.union = function(...)
+--- Returns a list containing the concatenation of all the input lists.
+-- @param ... any number of input lists.
+lib.concat = function(...)
 	local r = {}
 	local n = select("#", ...)
 	for a = 1, n do
@@ -261,10 +263,16 @@ lib.union = function(...)
 	return r
 end
 
---- returns a copy of the list l with any the duplicate values removed
+--- Returns a list containing all the different values present in the input lists.
+-- @param ... any number of input lists.
+lib.union = function(...)
+	return lib.uniq(lib.concat(...))
+end
+
+--- Returns a copy of the list l with any the duplicate values removed.
 -- @param l the input list
--- @param is_sorted an optional argument specifying if the list is sorted, allowing to use a more efficient algorithm
--- @param fn an optional function that applied to each value in the list before performing the comparison
+-- @param is_sorted an optional argument specifying if the list is sorted, allowing to use a more efficient algorithm.
+-- @param fn an optional function that applied to each value in the list before performing the comparison.
 lib.uniq = function(l, is_sorted, fn)
 	local lm = fn and lib.map(l, fn) or l
 	local r = {}
