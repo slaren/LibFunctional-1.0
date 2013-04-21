@@ -12,6 +12,17 @@ lib = require("functional");
 		end
 		return true
 	end
+
+	local function test(t1, t2)
+		if not teq(t1, t2) then
+			print("test failed:")
+			print("\texpected: { " .. table.concat(t1, ", ") .. " }")
+			print("\tgot: { " .. table.concat(t2, ", ") .. " }")
+			return false
+		end
+		return true
+	end
+
 	local fn = lib
 
 	local lst = { 1, 3, 2, 5, 4 }
@@ -22,13 +33,13 @@ lib = require("functional");
 	assert(true == teq({1, 2, 3}, {1, 2, 3}))
 
 	-- clone
-	assert(teq(lst, fn.clone(lst)))
+	assert(test(lst, fn.clone(lst)))
 
 	-- map
-	assert(teq({ 2, 6, 4, 10, 8 }, fn.map(lst, function(v) return v * 2 end)))
+	assert(test({ 2, 6, 4, 10, 8 }, fn.map(lst, function(v) return v * 2 end)))
 
 	-- filter
-	assert(teq({ 3, 2, 5, 4 }, fn.filter(lst, function(v) return v > 1 end)))
+	assert(test({ 3, 2, 5, 4 }, fn.filter(lst, function(v) return v > 1 end)))
 
 	-- find
 	assert(5 == fn.find(lst, function(v) return v == 5 end))
@@ -39,7 +50,7 @@ lib = require("functional");
 	assert(false == fn.contains(lst, 6))
 
 	-- reverse
-	assert(teq({ 4, 5, 2, 3, 1 }, fn.reverse(lst)))
+	assert(test({ 4, 5, 2, 3, 1 }, fn.reverse(lst)))
 
 	-- binary_search
 	assert(1 == fn.binary_search(fn.sorted(lst), 1))
@@ -73,22 +84,27 @@ lib = require("functional");
 	assert(false == fn.any(lst, function(v) return v > 10 end))
 
 	-- union
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2, 3, 4, 5 })))
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4, 5 })))
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4 } , { 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2, 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4, 5 })))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.union({ 1, 2 }, { 3, 4 } , { 5 })))
+
+	-- uniq
+	assert(test({ 2, 3, 1 }, fn.uniq({ 2, 3, 2, 1, 1 })))
+	assert(test({ 1, 2, 3 }, fn.uniq({ 1, 1, 2, 2, 3 }, true)))
+	assert(test({ 1, 2 }, fn.uniq({ 1, 1, 2, 2, 3 }, true, function(v) return math.floor(v/2) end)))
 
 	-- keys
-	assert(teq({ "a", "b", "c", "d", "e" }, fn.sorted(fn.keys(tbl))))
+	assert(test({ "a", "b", "c", "d", "e" }, fn.sorted(fn.keys(tbl))))
 
 	-- values
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.sorted(fn.values(tbl))))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sorted(fn.values(tbl))))
 
 	-- sorted
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.sorted(lst)))
-	assert(teq({ 1, 3, 2, 5, 4 }, lst))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sorted(lst)))
+	assert(test({ 1, 3, 2, 5, 4 }, lst))
 
 	-- sort
-	assert(teq({ 1, 2, 3, 4, 5 }, fn.sort(lst)))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sort(lst)))
 	
 	print("LibFunctional-1.0: tests passed")
 end)()
