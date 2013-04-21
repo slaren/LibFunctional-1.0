@@ -10,6 +10,12 @@ local pairs, select = pairs, select
 local math_min, math_max, math_floor = math.min, math.max, math.floor
 
 
+--[[
+TODO:
+	slice
+
+]]
+
 -- table functions
 
 --- Returns a list of keys in the table t.
@@ -55,7 +61,7 @@ lib.clone = function(l)
 end
 
 --- Calls function fn on each value.
--- aliases: for_each
+-- **aliases**: //for_each//
 -- @param l the input list.
 -- @param fn the function called with each value.
 lib.each = function(l, fn)
@@ -82,7 +88,7 @@ end
 
 --- Returns a list of values in the list l that pass a truth test fn.
 -- @param l the input list.
--- @param fn the function called with each value.
+-- @param fn the truth test function.
 lib.filter = function(l, fn)
 	local r = {}
 	local len = #l
@@ -95,7 +101,7 @@ lib.filter = function(l, fn)
 end
 
 --- Returns a reversed copy of the list l.
--- @param l the input list
+-- @param l the input list.
 lib.reverse = function(l)
 	local r = {}
 	local len = #l
@@ -106,8 +112,8 @@ lib.reverse = function(l)
 end
 
 --- Returns the first value in list l that passes the truth test fn.
--- @param l the input list
--- @param fn the truth test function
+-- @param l the input list.
+-- @param fn the truth test function.
 lib.find = function(l, fn)
 	local r = {}
 	local len = #l
@@ -167,7 +173,7 @@ lib.sorted_insert = function(l, v)
 end
 
 --- Returns a reduction of the list based on the left associative application of the function fn to all the value of the list l.
--- aliases: foldl
+-- **aliases**: //foldl//
 -- @param l the input list.
 -- @param fn a function receiving two values representing the result of the previous application of this function and the next value in the list l.
 -- @param initial an optional initial value to be passed together with the first value of the list l to the function fn. If omitted, the first call is passed the two first values in the list l instead.
@@ -202,7 +208,7 @@ end
 
 --- Performs an in-place sort of the list l.
 -- @param l the input list
--- @param comp an optional comparison function that receives two values and returns true when the first is less than the second
+-- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
 lib.sort = function(l, comp)
 	tsort(l, comp)
 	return l
@@ -218,8 +224,9 @@ lib.sorted = function(l, comp)
 end
 
 --- Returns true if all the values in l satisfy the truth function fn, false otherwise.
--- aliases: every
+-- **aliases**: //every//
 -- @param l the input list.
+-- @param fn the truth test function.
 lib.all = function(l, fn)
 	local len = #l
 	for i = 1, len do
@@ -233,8 +240,9 @@ end
 lib.every = lib.all
 
 --- Returns true if any value in l satisfies the truth function fn, false otherwise.
--- aliases: some
+-- **aliases**: //some//
 -- @param l the input list.
+-- @param fn the truth test function.
 lib.any = function(l, fn)
 	local len = #l
 	for i = 1, len do
@@ -270,7 +278,7 @@ lib.union = function(...)
 end
 
 --- Returns a copy of the list l with any the duplicate values removed.
--- @param l the input list
+-- @param l the input list.
 -- @param is_sorted an optional argument specifying if the list is sorted, allowing to use a more efficient algorithm.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
 lib.uniq = function(l, is_sorted, fn)
