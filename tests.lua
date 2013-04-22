@@ -85,17 +85,17 @@ local fn = require("functional");
 	assert(test({ 1, 1 }, { fn.find_first_of(lst, 5, 1) }))
 	assert(test({ 4, 5 }, { fn.find_first_of(lst, 6, 7, 4) }))
 
+	-- find_if
+	assert(test({}, { fn.find_if({}, function(v) return v == 5 end) }))
+	assert(test({ 5, 4 }, { fn.find_if(lst, function(v) return v == 5 end) }))
+	assert(test({}, { fn.find_if(lst, function(v) return v == 6 end) }))
+
 	-- find_last_of
 	assert(test({}, { fn.find_last_of({}) }))
 	assert(test({ 3, 2 }, { fn.find_last_of(lst, 3) }))
 	assert(test({ 3, 2 }, { fn.find_last_of(lst, 6, 3) }))
 	assert(test({ 5, 4 }, { fn.find_last_of(lst, 5, 1) }))
 	assert(test({ 4, 5 }, { fn.find_last_of(lst, 5, 1, 4) }))
-
-	-- find_if
-	assert(test({}, { fn.find_if({}, function(v) return v == 5 end) }))
-	assert(test({ 5, 4 }, { fn.find_if(lst, function(v) return v == 5 end) }))
-	assert(test({}, { fn.find_if(lst, function(v) return v == 6 end) }))
 
 	-- flatten
 	assert(test({}, fn.flatten({})))

@@ -5,4 +5,5 @@
 ## X-Category: Library
 
 Libs\LibStub\LibStub.lua
-functional.lua
+
+lib.xml

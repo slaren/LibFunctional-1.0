@@ -47,7 +47,7 @@ lib.pairs = function(t)
 	return r
 end
 
---- Returns true if //t1// has the same keys and values than //t2//.
+--- Returns true if the table //t1// has the same keys and values than the table //t2//.
 -- @paramsig t1, t2[, shallow]
 -- @param t1 first table.
 -- @param t2 second table.
@@ -62,7 +62,7 @@ lib.equal = function(t1, t2, shallow)
 	return true
 end
 
--- Returns a copy of the table //t// with is values as keys and its keys as values
+--- Returns a copy of the table //t// with is values as keys and its keys as values
 -- @param t the input table.
 lib.invert = function(t)
 	local r = {}
@@ -140,7 +140,7 @@ end
 
 
 --- Takes any number of lists and returns a new list where each element is a list of the values in all the passed lists at that position.
--- If one list is shorter than the others, excess elements of the longer lists are discarded
+-- If one list is shorter than the others, excess elements of the longer lists are discarded.
 -- @param ... any number of input lists.
 lib.zip = function(...)
 	local ls = { ... }
