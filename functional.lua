@@ -183,6 +183,7 @@ end
 --- Takes any number of lists and returns a new list where each element is a list of the values in all the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.
 -- @param ... any number of input lists.
+-- @see lib.unzip
 lib.zip = function(...)
 	local ls = { ... }
 	local n = #ls
@@ -201,6 +202,7 @@ end
 
 --- Undoes a zip operation.
 -- @param l a list of lists.
+-- @see lib.zip
 lib.unzip = function(l)
 	return unpack(lib.zip(unpack(l)))
 end
@@ -512,11 +514,11 @@ lib.uniq = function(l, is_sorted, fn)
 	return r
 end
 
---- Constructs a list from the result of an iterator function.
+--- Returns a list constructed from the result of an iterator function.
 -- @paramsig [tr, ]f, s, var
 -- @param tr an optional function that is applied to the values returned by the iterator before adding them to the list.
 -- If omitted, the default function packs all the values returned by the iterator into a list.
--- @param "f, s, var" the values as returned by an iterator function.
+-- @param f,s,var the values as returned by an iterator function.
 lib.from_iterator = function(...)
 	local tr
 	local f, s, var
