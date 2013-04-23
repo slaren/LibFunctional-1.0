@@ -4,18 +4,44 @@ local lib = LibStub and LibStub:NewLibrary("LibFunctional-1.0", version) or {}
 if not lib then return end
 
 -- globals
-local tinsert, tsort = table.insert, table.sort
-local pairs, select, type, unpack = pairs, select, type, unpack
+local tinsert, tsort, tconcat = table.insert, table.sort, table.concat
+local pairs, select, type, unpack, loadstring = pairs, select, type, unpack, loadstring
 local math_min, math_max, math_floor, math_random = math.min, math.max, math.floor, math.random
 
+-- functions that work on functions
 
---[[
-TODO:
-	range([start], stop[, step])
-	bind(fn, arg1[, arg2...])
-]]
+--- Returns a function //f// such as calling //f(p1, p2, ..pn)// is equivalent to calling //fn(arg1, arg2, .. argn, p1, p2, ..pn)//.
+-- @paramsig fn, arg1[, arg2...]
+-- @param fn the input function.
+-- @param "arg1[, arg2...]" one or more arguments to be bound.
+lib.bind = function(fn, ...)
+	local anames = tconcat(lib.map(lib.range(select("#", ...)), function(x) return "a"..x end), ",")
+	return loadstring(
+		[[return function(fn, ]] .. anames .. [[)
+			return function(...)
+				return fn(]] .. anames .. [[, ...)
+			end
+		end]])()(fn, ...)
+end
 
--- table functions
+--- Returns a function //f// such as calling //f(p1, p2, ..pn)// is equivalent to calling //fn(p1, p2, .. pnth, arg1, arg2, .. argn, pnth+1, pnth+2, ..pnth+n)//.
+-- @paramsig fn, nth, arg1[, arg2...]
+-- @param fn the input function.
+-- @param nth the position of the first argument to be bound.
+-- @param "arg1[, arg2...]" one or more arguments to be bound.
+lib.bind_nth = function(fn, nth, ...)
+	local pnames = tconcat(lib.map(lib.range(nth - 1), function(x) return "p"..x end), ",")
+	local anames = tconcat(lib.map(lib.range(select("#", ...)), function(x) return "a"..x end), ",")
+	if nth > 1 then	pnames = pnames .. "," end
+	return loadstring(
+		[[return function(fn, ]] .. anames .. [[)
+			return function(]] .. pnames .. [[ ...)
+				return fn(]] .. pnames .. anames .. [[, ...)
+			end
+		end]])()(fn, ...)
+end
+
+-- functions that work on tables
 
 --- Returns a list of keys in the table //t//.
 -- @param t the input table.
@@ -72,7 +98,23 @@ lib.invert = function(t)
 	return r
 end
 
--- list functions
+-- functions that work on lists
+
+--- Returns a list containing the numbers from //start// to //stop// (including //stop//) with step //step//.
+-- If omitted, //start// and //step// default to 1.
+-- @paramsig [start], stop[, step]
+lib.range = function(a1, a2, a3)
+	local start = a2 and a1 or 1
+	local stop = a2 and a2 or a1
+	local step = a3 or 1
+	local r = {}
+	local p = 1
+	for i = start, stop, step do
+		r[p] = i
+		p = p + 1
+	end
+	return r
+end
 
 --- Returns a copy of a portion of the list //l//.
 -- @paramsig l, b[, e]
@@ -137,7 +179,6 @@ lib.flatten = function(l, shallow, output)
 	end
 	return r
 end
-
 
 --- Takes any number of lists and returns a new list where each element is a list of the values in all the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.

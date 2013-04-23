@@ -26,6 +26,11 @@ local fn = require("functional");
 	local lst = { 1, 3, 2, 5, 4 }
 	local tbl = { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5 }
 
+	function f(a1, a2, a3, a4, a5)
+		return a1, a2, a3, a4, a5
+	end
+
+
 	-- all
 	assert(true == fn.all({}, function(v) return v > 0 end))
 	assert(true == fn.all(lst, function(v) return v > 0 end))
@@ -44,6 +49,16 @@ local fn = require("functional");
 	assert(4 == fn.binary_search(fn.sorted(lst), 4))
 	assert(5 == fn.binary_search(fn.sorted(lst), 5))
 	assert(nil == fn.binary_search(fn.sorted(lst), 6))
+
+	-- bind
+	assert(test({ 1, 2 }, { fn.bind(f, 1)(2) }))
+	assert(test({ 1, 2, 3, 4 }, { fn.bind(f, 1, 2)(3, 4) }))
+
+	-- bind_nth
+	assert(test({ 1, 2 }, { fn.bind_nth(f, 1, 1)(2) }))
+	assert(test({ 1, 2, 3 }, { fn.bind_nth(f, 2, 2)(1, 3) }))
+	assert(test({ 1, 2, 3, 4 }, { fn.bind_nth(f, 1, 1, 2)(3, 4) }))
+	assert(test({ 1, 2, 3, 4, 5 }, { fn.bind_nth(f, 2, 2, 3)(1, 4, 5) }))
 
 	-- clone
 	assert(test({}, fn.clone({})))
@@ -130,6 +145,14 @@ local fn = require("functional");
 	-- pairs
 	assert(test({}, fn.pairs({})))
 	assert(test({ { "a", 1 }, { "b", 2 } }, fn.pairs({ ["a"] = 1, ["b"] = 2 })))
+
+	-- range
+	assert(test({}, fn.range(0)))
+	assert(test({ 1 }, fn.range(1)))
+	assert(test({ 1, 2, 3 }, fn.range(3)))
+	assert(test({ 2, 3 }, fn.range(2, 3)))
+	assert(test({ 0, 2, 4 }, fn.range(0, 4, 2)))
+	assert(test({ -1, -2 }, fn.range(-1, -2, -1)))
 
 	-- reduce
 	assert(nil == fn.reduce({}, function(r, v) return r + v end))
