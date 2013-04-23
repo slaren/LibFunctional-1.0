@@ -518,7 +518,9 @@ end
 -- @paramsig [tr, ]f, s, var
 -- @param tr an optional function that is applied to the values returned by the iterator before adding them to the list.
 -- If omitted, the default function packs all the values returned by the iterator into a list.
--- @param f,s,var the values as returned by an iterator function.
+-- @param f
+-- @param s
+-- @param var the values as returned by an iterator function.
 lib.from_iterator = function(...)
 	local tr
 	local f, s, var
