@@ -512,6 +512,40 @@ lib.uniq = function(l, is_sorted, fn)
 	return r
 end
 
+--- Constructs a list from the result of an iterator function.
+-- @paramsig [tr, ]f, s, var
+-- @param tr an optional function that is applied to the values returned by the iterator before adding them to the list.
+-- If omitted, the default function packs all the values returned by the iterator into a list.
+-- @param "f, s, var" the values as returned by an iterator function.
+lib.from_iterator = function(...)
+	local tr
+	local f, s, var
+
+	if select("#", ...) == 4 then
+		tr = select(1, ...)
+		f = select(2, ...)
+		s = select(3, ...)
+		var = select(4, ...)
+	else
+		tr = function(...) return { ... } end
+		f = select(1, ...)
+		s = select(2, ...)
+		var = select(3, ...)
+	end
+
+	local r = {}
+	local n = 1
+	while true do
+		local v1, v2, v3, v4, v5 = f(s, var)
+		var = v1
+		if var == nil then break end
+		r[n] = tr(v1, v2, v3, v4, v5)
+		n = n + 1
+	end
+
+	return r
+end
+
 -- allows it to work as a lua module outside of wow
 -- shouldn't have any side effects inside wow
 return lib

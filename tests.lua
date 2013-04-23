@@ -2,15 +2,8 @@ local fn = require("functional");
 
 (function()
 	local function dump(t)
-		return "{ " .. fn.reduce(t, function(r, v)
-			local str
-			if type(v) == "table" then
-				str = dump(v)
-			else
-				str = tostring(v)
-			end
-			return r ~= "" and (r .. ", " .. str) or str
-		end, "") .. " }"
+		local t = fn.map(t, function(x) return type(x) == "table" and dump(x) or tostring(x) end)
+		return "{" .. table.concat(t, ", ") .. "}"
 	end
 
 	local function test(t1, t2)
@@ -23,13 +16,10 @@ local fn = require("functional");
 		return true
 	end
 
+	-- test data
 	local lst = { 1, 3, 2, 5, 4 }
 	local tbl = { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5 }
-
-	function f(a1, a2, a3, a4, a5)
-		return a1, a2, a3, a4, a5
-	end
-
+	function f(a1, a2, a3, a4, a5) return a1, a2, a3, a4, a5 end
 
 	-- all
 	assert(true == fn.all({}, function(v) return v > 0 end))
@@ -120,6 +110,13 @@ local fn = require("functional");
 	assert(test({ 1, 2, 3, { 4 } }, fn.flatten({ 1, 2, { 3 }, { { 4 } } }, true)))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.flatten({ 1, 2, { { 3 } }, { 4, 5 } })))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.flatten({ 1, 2, { { 3 } }, { { { 4 } }, 5 } })))
+
+	-- from_iterator
+	assert(test({}, fn.from_iterator(pairs({}))))
+	assert(test({ { 1, 1 }, { 2, 2 } }, fn.from_iterator(ipairs({ 1, 2 }))))
+	assert(test(lst, fn.from_iterator(function(i, v) return v end, ipairs(lst))))
+	assert(test(fn.values(tbl), fn.from_iterator(function(k, v) return v end, pairs(tbl))))
+	assert(test(fn.keys(tbl), fn.from_iterator(function(k, v) return k end, pairs(tbl))))
 
 	-- invert
 	assert(test({}, fn.invert({})))
