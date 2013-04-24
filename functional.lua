@@ -1,5 +1,12 @@
 local version = 1
-local lib = LibStub and LibStub:NewLibrary("LibFunctional-1.0", version) or {}
+local lib
+
+-- allow it to work outside of wow for testing purposes
+if LibStub then
+	lib = LibStub:NewLibrary("LibFunctional-1.0", version)
+else
+	lib = {}
+end
 
 if not lib then return end
 
@@ -537,13 +544,21 @@ lib.from_iterator = function(...)
 		var = select(3, ...)
 	end
 
+	local function mtr(...)
+		var = select(1, ...)
+		if var  == nil then
+			return nil
+		else
+			return tr(...)
+		end
+	end
+
 	local r = {}
 	local n = 1
 	while true do
-		local v1, v2, v3, v4, v5 = f(s, var)
-		var = v1
+		local v = mtr(f(s, var))
 		if var == nil then break end
-		r[n] = tr(v1, v2, v3, v4, v5)
+		r[n] = v
 		n = n + 1
 	end
 
