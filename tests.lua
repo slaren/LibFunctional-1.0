@@ -25,11 +25,13 @@ local fn = require("functional");
 	assert(true == fn.all({}, function(v) return v > 0 end))
 	assert(true == fn.all(lst, function(v) return v > 0 end))
 	assert(false == fn.all(lst, function(v) return v > 1 end))
+	assert(fn.every == fn.all)
 
 	-- any
 	assert(false == fn.any({}, function(v) return v > 0 end))
 	assert(true == fn.any(lst, function(v) return v > 3 end))
 	assert(false == fn.any(lst, function(v) return v > 10 end))
+	assert(fn.some == fn.any)
 
 	-- binary_search
 	assert(nil == fn.binary_search({}, 1))
@@ -72,6 +74,7 @@ local fn = require("functional");
 		fn.each(lst, function(v) n = n + v end)
 		assert(n == fn.sum(lst))
 	end
+	assert(fn.for_each == fn.each)
 
 	-- equal
 	assert(false == fn.equal({1, 2, 3}, {1, 5, 7}))
@@ -158,11 +161,13 @@ local fn = require("functional");
 	assert(16 == fn.reduce(lst, function(r, v) return r + v end, 1))
 	assert(15 == fn.reduce({ 5 }, function(r, v) return r + v end, 10))
 	assert(1 == fn.reduce({ 8, 4, 2, 1 }, function(r, v) return r / v end))
+	assert(fn.foldl == fn.reduce)
 
 	-- reduce_right
 	assert(nil == fn.reduce_right({}, function(r, v) return r + v end))
 	assert(5 == fn.reduce_right({ 5 }, function(r, v) return r + v end))
 	assert(1 == fn.reduce_right({ 1, 2, 4, 8 }, function(r, v) return r / v end))
+	assert(fn.foldr == fn.reduce_right)
 
 	-- reverse
 	assert(test({}, fn.reverse({})))
