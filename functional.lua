@@ -61,7 +61,7 @@ local function equal(t1, t2, shallow)
 	return true
 end
 
---- Returns a copy of the table //t// with is values as keys and its keys as values
+--- Returns a copy of the table //t// with its values as keys and its keys as values.
 -- @param t the input table.
 local function invert(t)
 	local r = {}
@@ -212,6 +212,7 @@ local function reverse(l)
 end
 
 --- Returns true if the value //v// is present in the list //l//, false otherwise.
+-- **aliases**: //elem//
 -- @param l the input list.
 -- @param v the value.
 local function contains(l, v)
@@ -561,6 +562,7 @@ lib.clone = clone
 lib.concat = concat
 lib.contains = contains
 lib.each = each
+lib.elem = contains
 lib.equal = equal
 lib.every = all
 lib.filter = filter

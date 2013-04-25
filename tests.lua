@@ -67,6 +67,7 @@ local fn = require("functional");
 	assert(false == fn.contains({}, 5))
 	assert(true == fn.contains(lst, 5))
 	assert(false == fn.contains(lst, 6))
+	assert(fn.elem == fn.contains)
 
 	-- each
 	do
