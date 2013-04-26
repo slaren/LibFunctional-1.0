@@ -63,12 +63,12 @@ end
 -- @paramsig tbl1, tbl2[, shallow]
 -- @param tbl1 first table.
 -- @param tbl2 second table.
--- @param shallow if false or omitted, tables values inside the tables are compared recursively, otherwise they are compared by their reference.
+-- @param shallow if false or omitted, table values inside the tables are compared recursively, otherwise they are compared by their reference.
 local function equal(tbl1, tbl2, shallow)
 	if #tbl1 ~= #tbl2 then return false end
 	local count1 = 0
 	for k, v in pairs(tbl1) do
-		if type(v) == "table" and not shallow then
+		if not shallow and type(v) == "table" then
 			if not equal(v, tbl2[k]) then return false end
 		elseif tbl2[k] ~= v then return false end
 		count1 = count1 + 1
@@ -226,15 +226,15 @@ local function reverse(list)
 	return r
 end
 
---- Returns true if the value //v// is present in the list //list//, false otherwise.
+--- Returns true if the value //value// is present in the list //list//, false otherwise.
 -- **aliases**: //elem//
 -- @param list the input list.
--- @param v the value.
-local function contains(list, v)
+-- @param value the value to search for.
+local function contains(list, value)
 	local r = {}
 	local len = #list
 	for i = 1, len do
-		if list[i] == v then
+		if list[i] == value then
 			return true
 		end
 	end
@@ -285,20 +285,21 @@ local function find_if(list, fn)
 	end
 end
 
---- Performs a binary search on sorted list //list// for value //v// and returns the index at which value should be inserted.
+--- Performs a binary search on sorted list //list// for value //value// and returns the index at which value should be inserted.
+-- @paramsig list, value[, fn]
 -- @param list the input sorted list.
--- @param v the value to search for.
+-- @param value the value to search for.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
-local function sorted_index(list, v, fn)
+local function sorted_index(list, value, fn)
 	fn = fn or function(x) return x end
 	local lo = 1
 	local hi = #list
 	while lo < hi do
 		local mid = math_floor((lo + hi) / 2)
 		local mid_v = fn(list[mid])
-		if mid_v == v then
+		if mid_v == value then
 			return mid
-		elseif mid_v < v then
+		elseif mid_v < value then
 			lo = mid + 1
 		else
 			hi = mid - 1
@@ -307,12 +308,13 @@ local function sorted_index(list, v, fn)
 	return lo
 end
 
---- Performs a binary search on sorted list //list// for value //v// and returns its index and value if found
+--- Performs a binary search on sorted list //list// for value //value// and returns its index and value if found
+-- @paramsig list, value[, fn]
 -- @param list the input sorted list.
--- @param v the value to search for.
+-- @param value the value to search for.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
-local function binary_search(list, v, fn)
-	local i = sorted_index(list, v, fn)
+local function binary_search(list, value, fn)
+	local i = sorted_index(list, value, fn)
 	local li = list[i]
 	local lv
 	
@@ -322,18 +324,19 @@ local function binary_search(list, v, fn)
 		lv = li
 	end
 
-	if lv == v then
+	if lv == value then
 		return i, li
 	end
 end
 
---- Inserts a value //v// in a sorted list //list// and returns it.
+--- Inserts a value //value// in a sorted list //list// and returns it.
+-- @paramsig list, value[, fn]
 -- @param list the input sorted list.
--- @param v the value to insert.
+-- @param value the value to insert.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
-local function sorted_insert(list, v, fn)
-	local i = sorted_index(list, v, fn)
-	tinsert(list, i, v)
+local function sorted_insert(list, value, fn)
+	local i = sorted_index(list, value, fn)
+	tinsert(list, i, value)
 	return list
 end
 

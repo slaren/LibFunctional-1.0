@@ -161,6 +161,7 @@ local fn = require("functional");
 
 	-- min
 	assert(test(nil, fn.min({})))
+	assert(test(2, fn.min({ 2 })))
 	assert(test(1, fn.min(lst)))
 
 	-- pairs
