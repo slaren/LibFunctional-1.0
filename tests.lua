@@ -1,13 +1,29 @@
 local fn = require("functional");
 
 (function()
-	local function dump(t)
+	local function dump_table(t)
 		local t = fn.map(t, function(x) return type(x) == "table" and dump(x) or tostring(x) end)
-		return "{" .. table.concat(t, ", ") .. "}"
+		return "{ " .. table.concat(t, ", ") .. " }"
 	end
 
+	local function dump(v)
+		if type(v) == "table" then
+			return dump_table(v)
+		else
+			return tostring(v)
+		end
+	end
+
+
 	local function test(t1, t2)
-		if not fn.equal(t1, t2) then
+		local eq
+		if type(t1) == "table" then
+			eq = type(t2) == "table" and fn.equal(t1, t2)
+		else
+			eq = t1 == t2
+		end
+
+		if not eq then
 			print("test failed:")
 			print("\texpected: " .. dump(t1))
 			print("\tgot: " .. dump(t2))
@@ -22,25 +38,25 @@ local fn = require("functional");
 	function f(a1, a2, a3, a4, a5) return a1, a2, a3, a4, a5 end
 
 	-- all
-	assert(true == fn.all({}, function(v) return v > 0 end))
-	assert(true == fn.all(lst, function(v) return v > 0 end))
-	assert(false == fn.all(lst, function(v) return v > 1 end))
-	assert(fn.every == fn.all)
+	assert(test(true, fn.all({}, function(v) return v > 0 end)))
+	assert(test(true, fn.all(lst, function(v) return v > 0 end)))
+	assert(test(false, fn.all(lst, function(v) return v > 1 end)))
+	assert(test(fn.every, fn.all))
 
 	-- any
-	assert(false == fn.any({}, function(v) return v > 0 end))
-	assert(true == fn.any(lst, function(v) return v > 3 end))
-	assert(false == fn.any(lst, function(v) return v > 10 end))
-	assert(fn.some == fn.any)
+	assert(test(false, fn.any({}, function(v) return v > 0 end)))
+	assert(test(true, fn.any(lst, function(v) return v > 3 end)))
+	assert(test(false, fn.any(lst, function(v) return v > 10 end)))
+	assert(test(fn.some, fn.any))
 
 	-- binary_search
-	assert(nil == fn.binary_search({}, 1))
-	assert(1 == fn.binary_search(fn.sorted(lst), 1))
-	assert(2 == fn.binary_search(fn.sorted(lst), 2))
-	assert(3 == fn.binary_search(fn.sorted(lst), 3))
-	assert(4 == fn.binary_search(fn.sorted(lst), 4))
-	assert(5 == fn.binary_search(fn.sorted(lst), 5))
-	assert(nil == fn.binary_search(fn.sorted(lst), 6))
+	assert(test({}, { fn.binary_search({}, 1) }))
+	assert(test({ 1, 1 }, { fn.binary_search(fn.sorted(lst), 1) } ))
+	assert(test({ 2, 2 }, { fn.binary_search(fn.sorted(lst), 2) } ))
+	assert(test({ 3, 3 }, { fn.binary_search(fn.sorted(lst), 3) } ))
+	assert(test({ 4, 4 }, { fn.binary_search(fn.sorted(lst), 4) } ))
+	assert(test({ 5, 5 }, { fn.binary_search(fn.sorted(lst), 5) } ))
+	assert(test({}, { fn.binary_search(fn.sorted(lst), 6) }))
 
 	-- bind
 	assert(test({ 1, 2 }, { fn.bind(f, 1)(2) }))
@@ -64,24 +80,28 @@ local fn = require("functional");
 	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2 }, { 3, 4 } , { 5 })))
 
 	-- contains
-	assert(false == fn.contains({}, 5))
-	assert(true == fn.contains(lst, 5))
-	assert(false == fn.contains(lst, 6))
-	assert(fn.elem == fn.contains)
+	assert(test(false, fn.contains({}, 5)))
+	assert(test(true, fn.contains(lst, 5)))
+	assert(test(false, fn.contains(lst, 6)))
+	assert(test(fn.elem, fn.contains))
 
 	-- each
 	do
 		local n = 0
-		fn.each(lst, function(v) n = n + v end)
-		assert(n == fn.sum(lst))
+		assert(test(lst, fn.each(lst, function(v) n = n + v end)))
+		assert(test(n, fn.sum(lst)))
 	end
-	assert(fn.for_each == fn.each)
+	assert(test(fn.for_each, fn.each))
 
 	-- equal
-	assert(false == fn.equal({1, 2, 3}, {1, 5, 7}))
-	assert(true == fn.equal({1, 2, 3}, {1, 2, 3}))
-	assert(true == fn.equal({1, 2, { 3 } }, {1, 2, { 3 } }))
-	assert(false == fn.equal({1, 2, { 3 } }, {1, 2, { 3 } }, true))
+	assert(test(false, fn.equal({ 1, 2 }, { 1, 5, 7 })))
+	assert(test(true, fn.equal({ 1, 2, 3 }, { 1, 2, 3 })))
+	assert(test(true, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } })))
+	assert(test(false, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } }, true)))
+	assert(test(true, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2, ["c"] = 3 })))
+	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 2, ["b"] = 2, ["c"] = 3 })))
+	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 })))
+	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2 })))
 
 	-- filter
 	assert(test({}, fn.filter({}, function(v) return v > 1 end)))
@@ -136,12 +156,12 @@ local fn = require("functional");
 	assert(test({ 2, 6, 4, 10, 8 }, fn.map(lst, function(v) return v * 2 end)))
 
 	-- max
-	assert(nil == fn.max({}))
-	assert(5 == fn.max(lst))
+	assert(test(nil, fn.max({})))
+	assert(test(5, fn.max(lst)))
 
 	-- min
-	assert(nil == fn.min({}))
-	assert(1 == fn.min(lst))
+	assert(test(nil, fn.min({})))
+	assert(test(1, fn.min(lst)))
 
 	-- pairs
 	assert(test({}, fn.pairs({})))
@@ -156,29 +176,29 @@ local fn = require("functional");
 	assert(test({ -1, -2 }, fn.range(-1, -2, -1)))
 
 	-- reduce
-	assert(nil == fn.reduce({}, function(r, v) return r + v end))
-	assert(5 == fn.reduce({ 5 }, function(r, v) return r + v end))
-	assert(15 == fn.reduce(lst, function(r, v) return r + v end))
-	assert(16 == fn.reduce(lst, function(r, v) return r + v end, 1))
-	assert(15 == fn.reduce({ 5 }, function(r, v) return r + v end, 10))
-	assert(1 == fn.reduce({ 8, 4, 2, 1 }, function(r, v) return r / v end))
-	assert(fn.foldl == fn.reduce)
+	assert(test(nil, fn.reduce({}, function(r, v) return r + v end)))
+	assert(test(5, fn.reduce({ 5 }, function(r, v) return r + v end)))
+	assert(test(15, fn.reduce(lst, function(r, v) return r + v end)))
+	assert(test(16, fn.reduce(lst, function(r, v) return r + v end, 1)))
+	assert(test(15, fn.reduce({ 5 }, function(r, v) return r + v end, 10)))
+	assert(test(1, fn.reduce({ 8, 4, 2, 1 }, function(r, v) return r / v end)))
+	assert(test(fn.foldl, fn.reduce))
 
 	-- reduce_right
-	assert(nil == fn.reduce_right({}, function(r, v) return r + v end))
-	assert(5 == fn.reduce_right({ 5 }, function(r, v) return r + v end))
-	assert(1 == fn.reduce_right({ 1, 2, 4, 8 }, function(r, v) return r / v end))
-	assert(fn.foldr == fn.reduce_right)
+	assert(test(nil, fn.reduce_right({}, function(r, v) return r + v end)))
+	assert(test(5, fn.reduce_right({ 5 }, function(r, v) return r + v end)))
+	assert(test(1, fn.reduce_right({ 1, 2, 4, 8 }, function(r, v) return r / v end)))
+	assert(test(fn.foldr, fn.reduce_right))
 
 	-- reverse
 	assert(test({}, fn.reverse({})))
 	assert(test({ 4, 5, 2, 3, 1 }, fn.reverse(lst)))
 
 	-- shuffle
-	assert(3 == #fn.shuffle({ 1, 2, 3 }))
+	assert(test(3, #fn.shuffle({ 1, 2, 3 })))
 
 	-- shuffled
-	assert(3 == #fn.shuffled({ 1, 2, 3 }))
+	assert(test(3, #fn.shuffled({ 1, 2, 3 })))
 
 	-- slice
 	assert(test({ }, fn.slice({}, 0)))
@@ -199,16 +219,24 @@ local fn = require("functional");
 	assert(test({ 1, 3, 2, 5, 4 }, lst))
 
 	-- sorted_index
-	assert(1 == fn.sorted_index({}, 4))
-	assert(4 == fn.sorted_index({ 1, 2, 3, 4, 5, 6 }, 4))
+	assert(test(1, fn.sorted_index({}, 4)))
+	assert(test(4, fn.sorted_index({ 1, 2, 3, 4, 5, 6 }, 4)))
 
 	-- sorted_insert
 	assert(test({ 4 }, fn.sorted_insert({}, 4)))
 	assert(test({ 1, 2, 3, 4, 5}, fn.sorted_insert({ 1, 2, 3, 5 }, 4)))
 
+	-- size
+	assert(test(0, fn.size({})))
+	assert(test(2, fn.size({ 1, 2 })))
+	assert(test(3, fn.size({ 1, 2, 3 })))
+	assert(test(3, fn.size({ 1, 2, { 3 } })))
+	assert(test(3, fn.size({ ["a"] = 1, ["b"] = 2, ["c"] = 3 })))
+	assert(test(4, fn.size({ ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 })))
+
 	-- sum
-	assert(nil == fn.sum({}))
-	assert(15 == fn.sum(lst))
+	assert(test(nil, fn.sum({})))
+	assert(test(15, fn.sum(lst)))
 
 	-- union
 	assert(test({}, fn.union()))

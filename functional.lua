@@ -12,71 +12,86 @@ if not lib then return end
 
 -- globals
 local tinsert, tsort, tconcat = table.insert, table.sort, table.concat
-local pairs, select, type, unpack, loadstring = pairs, select, type, unpack, loadstring
+local pairs, next, select, type, unpack, loadstring = pairs, next, select, type, unpack, loadstring
 local math_min, math_max, math_floor, math_random = math.min, math.max, math.floor, math.random
 
---- Returns a list of keys in the table //t//.
--- @param t the input table.
-local function keys(t)
+--- Returns a list of keys in the table //tbl//.
+-- @param tbl the input table.
+local function keys(tbl)
 	local r = {}
-	for k, _ in pairs(t) do
+	for k, _ in pairs(tbl) do
 		tinsert(r, k)
 	end
 	return r
 end
 
---- Returns a list of values in the table //t//.
--- @param t the input table.
-local function values(t)
+--- Returns a list of values in the table //tbl//.
+-- @param tbl the input table.
+local function values(tbl)
 	local r = {}
-	for _, v in pairs(t) do
+	for _, v in pairs(tbl) do
 		tinsert(r, v)
 	end
 	return r
 end
 
---- Returns a list of ##{ key, value }## pairs in the table //t//.
+--- Returns a list of ##{ key, value }## pairs in the table //tbl//.
 -- @name pairs
--- @param t the input table.
-local function table_pairs(t)
+-- @param tbl the input table.
+local function table_pairs(tbl)
 	local r = {}
-	for k, v in pairs(t) do
+	for k, v in pairs(tbl) do
 		tinsert(r, { k , v })
 	end
 	return r
 end
 
---- Returns true if the table //t1// has the same keys and values than the table //t2//.
--- @paramsig t1, t2[, shallow]
--- @param t1 first table.
--- @param t2 second table.
--- @param shallow if false or omitted, tables values inside the tables are compared recursively, otherwise they are compared by their reference.
-local function equal(t1, t2, shallow)
-	if #t1 ~= #t2 then return false end
-	for k, v in pairs(t1) do
-		if type(v) == "table" and not shallow then
-			if not equal(v, t2[k]) then return false end
-		elseif t2[k] ~= v then return false end
+--- Returns the number of items in the table //tbl//.
+-- @name size
+-- @param tbl the input table.
+local function table_size(tbl)
+	local count = 0
+	local v = nil
+	while true do
+		v = next(tbl, v)
+		if not v then return count end
+		count = count + 1
 	end
-	return true
 end
 
---- Returns a copy of the table //t// with its values as keys and its keys as values.
--- @param t the input table.
-local function invert(t)
+--- Returns true if the table //tbl1// has the same keys and values than the table //tbl2//.
+-- @paramsig tbl1, tbl2[, shallow]
+-- @param tbl1 first table.
+-- @param tbl2 second table.
+-- @param shallow if false or omitted, tables values inside the tables are compared recursively, otherwise they are compared by their reference.
+local function equal(tbl1, tbl2, shallow)
+	if #tbl1 ~= #tbl2 then return false end
+	local count1 = 0
+	for k, v in pairs(tbl1) do
+		if type(v) == "table" and not shallow then
+			if not equal(v, tbl2[k]) then return false end
+		elseif tbl2[k] ~= v then return false end
+		count1 = count1 + 1
+	end
+	return count1 == table_size(tbl2)
+end
+
+--- Returns a copy of the table //tbl// with its values as keys and its keys as values.
+-- @param tbl the input table.
+local function invert(tbl)
 	local r = {}
-	for k, v in pairs(t) do
+	for k, v in pairs(tbl) do
 		r[v] = k
 	end
 	return r
 end
 
---- Returns a shallow copy of the list //l//.
--- @param l the input list.
-local function clone(l)
+--- Returns a shallow copy of the list //list//.
+-- @param list the input list.
+local function clone(list)
 	local r = {}
-	for i = 1, #l do
-		r[i] = l[i]
+	for i = 1, #list do
+		r[i] = list[i]
 	end
 	return r
 end
@@ -97,11 +112,11 @@ local function range(a1, a2, a3)
 	return r
 end
 
---- Returns a copy of a portion of the list //l//.
--- @paramsig l, b[, e]
--- @param l the input list.
--- @param b the first index to copy. If negative, indicates an offset from the end of the list.
--- @param e optional, the last index to copy. If omitted, the list is copied through the end. If negative, indicates an offset from the end of the list.
+--- Returns a copy of a portion of the list //list//.
+-- @paramsig list, begin[, end]
+-- @param list the input list.
+-- @param begin the first index to copy. If negative, indicates an offset from the end of the list.
+-- @param end optional, the last index to copy. If omitted, the list is copied through the end. If negative, indicates an offset from the end of the list.
 local function slice(l, b, e)
 	local r = {}
 	local len = #l
@@ -115,29 +130,29 @@ local function slice(l, b, e)
 	return r
 end
 
---- Shuffles the list //l// in-place using the Fisher–Yates algorithm and returns it.
--- @param l the input list.
-local function shuffle(l)
-	local j = #l
+--- Shuffles the list //list// in-place using the Fisher–Yates algorithm and returns it.
+-- @param list the input list.
+local function shuffle(list)
+	local j = #list
 	while (j > 0) do
 		local i = math_random(j)
-		local tmp = l[i]
-		l[i] = l[j]
-		l[j] = tmp
+		local tmp = list[i]
+		list[i] = list[j]
+		list[j] = tmp
 		j = j - 1
 	end
-	return l
+	return list
 end
 
---- Returns a copy of the list //l// shuffled using the Fisher–Yates algorithm.
--- @param l the input list.
-local function shuffled(l)
-	return shuffle(clone(l))
+--- Returns a copy of the list //list// shuffled using the Fisher–Yates algorithm.
+-- @param list the input list.
+local function shuffled(list)
+	return shuffle(clone(list))
 end
 
---- Returns a copy of the list //l// with any nested lists flattened to a single level.
--- @paramsig l[, shallow]
--- @param l the input list.
+--- Returns a copy of the list //list// with any nested lists flattened to a single level.
+-- @paramsig list[, shallow]
+-- @param list the input list.
 -- @param shallow optional, if set to true only flattens a single level
 local function flatten(l, shallow, output)
 	local r = output or {}
@@ -161,124 +176,126 @@ local function flatten(l, shallow, output)
 	return r
 end
 
---- Calls function //fn// on each value.
+--- Calls repeatedly the function //fn// with each value of the list //list//.
 -- **aliases**: //for_each//
--- @param l the input list.
+-- @param list the input list.
 -- @param fn the function called with each value.
-local function each(l, fn)
-	local len = #l
+local function each(list, fn)
+	local len = #list
 	for i = 1, len do
-		local v = l[i]
+		local v = list[i]
 		fn(v)
 	end
-	return l
+	return list
 end
 
---- Returns a new list with the results of //fn// applied to all items in the list //l//.
--- @param l the input list.
+--- Returns a new list with the results of //fn// applied to all items in the list //list//.
+-- @param list the input list.
 -- @param fn the function called with each value.
-local function map(l, fn)
+local function map(list, fn)
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		r[i] = fn(l[i])
+		r[i] = fn(list[i])
 	end
 	return r
 end
 
---- Returns a list of values in the list //l// that pass a truth test //fn//.
--- @param l the input list.
+--- Returns a list of values in the list //list// that pass a truth test //fn//.
+-- @param list the input list.
 -- @param fn the truth test function.
-local function filter(l, fn)
+local function filter(list, fn)
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		if fn(l[i]) then
-			tinsert(r, l[i])
+		if fn(list[i]) then
+			tinsert(r, list[i])
 		end
 	end
 	return r
 end
 
---- Returns a reversed copy of the list //l//.
--- @param l the input list.
-local function reverse(l)
+--- Returns a reversed copy of the list //list//.
+-- @param list the input list.
+local function reverse(list)
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		r[i] = l[len - i + 1]
+		r[i] = list[len - i + 1]
 	end
 	return r
 end
 
---- Returns true if the value //v// is present in the list //l//, false otherwise.
+--- Returns true if the value //v// is present in the list //list//, false otherwise.
 -- **aliases**: //elem//
--- @param l the input list.
+-- @param list the input list.
 -- @param v the value.
-local function contains(l, v)
+local function contains(list, v)
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		if l[i] == v then
+		if list[i] == v then
 			return true
 		end
 	end
 	return false
 end
 
---- Returns the first value and its index in list //l// that is equal to any of the values passed.
--- @param l the input list.
+--- Returns the first value and its index in list //list// that is equal to any of the values passed.
+-- @param list the input list.
 -- @param ... one or more values to search for.
-local function find_first_of(l, ...)
+local function find_first_of(list, ...)
 	local vs = { ... }
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		local lv = l[i]
+		local lv = list[i]
 		if contains(vs, lv) then
 			return lv, i
 		end
 	end
 end
 
---- Returns the last value and its index in list //l// that is equal to any of the values passed.
--- @param l the input list.
+--- Returns the last value and its index in list //list// that is equal to any of the values passed.
+-- @param list the input list.
 -- @param ... one or more values to search for.
-local function find_last_of(l, ...)
+local function find_last_of(list, ...)
 	local vs = { ... }
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = len, 1, -1 do
-		local lv = l[i]
+		local lv = list[i]
 		if contains(vs, lv) then
 			return lv, i
 		end
 	end
 end
 
---- Returns the first value and its index in list //l// that passes the truth test //fn//.
--- @param l the input list.
+--- Returns the first value and its index in list //list// that passes the truth test //fn//.
+-- @param list the input list.
 -- @param fn the truth test function.
-local function find_if(l, fn)
+local function find_if(list, fn)
 	local r = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
-		local v = l[i]
+		local v = list[i]
 		if fn(v) then
 			return v, i
 		end
 	end
 end
 
---- Performs a binary search on sorted list //l// for value //v// and returns the index at which value should be inserted.
--- @param l the input sorted list.
+--- Performs a binary search on sorted list //list// for value //v// and returns the index at which value should be inserted.
+-- @param list the input sorted list.
 -- @param v the value to search for.
-local function sorted_index(l, v)
+-- @param fn an optional function that is applied to each value in the list before performing the comparison.
+local function sorted_index(list, v, fn)
+	fn = fn or function(x) return x end
 	local lo = 1
-	local hi = #l
+	local hi = #list
 	while lo < hi do
 		local mid = math_floor((lo + hi) / 2)
-		local mid_v = l[mid]
+		local mid_v = fn(list[mid])
 		if mid_v == v then
 			return mid
 		elseif mid_v < v then
@@ -290,101 +307,112 @@ local function sorted_index(l, v)
 	return lo
 end
 
---- Performs a binary search on sorted list //l// for value //v// and returns its index if found
--- @param l the input sorted list.
+--- Performs a binary search on sorted list //list// for value //v// and returns its index and value if found
+-- @param list the input sorted list.
 -- @param v the value to search for.
-local function binary_search(l, v)
-	local i = sorted_index(l, v)
-	if l[i] == v then
-		return i
+-- @param fn an optional function that is applied to each value in the list before performing the comparison.
+local function binary_search(list, v, fn)
+	local i = sorted_index(list, v, fn)
+	local li = list[i]
+	local lv
+	
+	if fn then
+		lv = fn(li)
+	else
+		lv = li
+	end
+
+	if lv == v then
+		return i, li
 	end
 end
 
---- Inserts a value //v// in a sorted list //l// and returns it.
--- @param l the input sorted list.
+--- Inserts a value //v// in a sorted list //list// and returns it.
+-- @param list the input sorted list.
 -- @param v the value to insert.
-local function sorted_insert(l, v)
-	local i = sorted_index(l, v)
-	tinsert(l, i, v)
-	return l
+-- @param fn an optional function that is applied to each value in the list before performing the comparison.
+local function sorted_insert(list, v, fn)
+	local i = sorted_index(list, v, fn)
+	tinsert(list, i, v)
+	return list
 end
 
---- Returns a reduction of the list //l// based on the left associative application of the function //fn//.
+--- Returns a reduction of the list //list// based on the left associative application of the function //fn//.
 -- **aliases**: //foldl//
--- @paramsig l, fn[, initial]
--- @param l the input list.
--- @param fn a function receiving two values representing the result of the previous application of this function and the next value in the list //l//.
--- @param initial an optional initial value to be passed together with the first value of the list //l// to the function //fn//. If omitted, the first call is passed the two first values in the list //l// instead.
-local function reduce(l, fn, initial)
+-- @paramsig list, fn[, initial]
+-- @param list the input list.
+-- @param fn a function receiving two values representing the result of the previous application of this function and the next value in the list //list//.
+-- @param initial an optional initial value to be passed together with the first value of the list //list// to the function //fn//. If omitted, the first call is passed the two first values in the list //list// instead.
+local function reduce(list, fn, initial)
 	local s = initial and 1 or 2
-	local r = initial and initial or l[1]
-	local len = #l
+	local r = initial and initial or list[1]
+	local len = #list
 	for i = s, len do
-		r = fn(r, l[i])
+		r = fn(r, list[i])
 	end
 	return r
 end
 
---- Returns a reduction of the list //l// based on the right associative application of the function //fn//.
+--- Returns a reduction of the list //list// based on the right associative application of the function //fn//.
 -- **aliases**: //foldr//
--- @paramsig l, fn[, initial]
--- @param l the input list.
--- @param fn a function receiving two values representing the result of the previous application of this function and the previous value in the list //l//.
--- @param initial an optional initial value to be passed together with the last value of the list //l// to the function //fn//. If omitted, the first call is passed the two last values in the list //l// instead.
-local function reduce_right(l, fn, initial)
-	local s = initial and #l or #l - 1
-	local r = initial and initial or l[#l]
+-- @paramsig list, fn[, initial]
+-- @param list the input list.
+-- @param fn a function receiving two values representing the result of the previous application of this function and the previous value in the list //list//.
+-- @param initial an optional initial value to be passed together with the last value of the list //list// to the function //fn//. If omitted, the first call is passed the two last values in the list //list// instead.
+local function reduce_right(list, fn, initial)
+	local s = initial and #list or #list - 1
+	local r = initial and initial or list[#list]
 	for i = s, 1, -1 do
-		r = fn(r, l[i])
+		r = fn(r, list[i])
 	end
 	return r
 end
 
---- Returns a sum of all the values in the list //l//.
--- @param l the input list.
-local function sum(l)
-	return reduce(l, function(a, b) return a + b end)
+--- Returns a sum of all the values in the list //list//.
+-- @param list the input list.
+local function sum(list)
+	return reduce(list, function(a, b) return a + b end)
 end
 
---- Returns the minimum value in the list //l//.
--- @param l the input list.
-local function min(l)
-	return reduce(l, math_min)
+--- Returns the minimum value in the list //list//.
+-- @param list the input list.
+local function min(list)
+	return reduce(list, math_min)
 end
 
---- Returns the maximum value in the list //l//.
--- @param l the input list.
-local function max(l)
-	return reduce(l, math_max)
+--- Returns the maximum value in the list //list//.
+-- @param list the input list.
+local function max(list)
+	return reduce(list, math_max)
 end
 
---- Performs an in-place sort of the list //l//.
--- @paramsig l[, comp]
--- @param l the input list
+--- Performs an in-place sort of the list //list//.
+-- @paramsig list[, comp]
+-- @param list the input list
 -- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
-local function sort(l, comp)
-	tsort(l, comp)
-	return l
+local function sort(list, comp)
+	tsort(list, comp)
+	return list
 end
 
---- Returns a sorted copy of the list //l//.
--- @paramsig l[, comp]
--- @param l the input list.
+--- Returns a sorted copy of the list //list//.
+-- @paramsig list[, comp]
+-- @param list the input list.
 -- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
-local function sorted(l, comp)
-	local r = clone(l)
+local function sorted(list, comp)
+	local r = clone(list)
 	tsort(r, comp)
 	return r
 end
 
---- Returns true if all the values in the list //l// satisfy the truth test //fn//, false otherwise.
+--- Returns true if all the values in the list //list// satisfy the truth test //fn//, false otherwise.
 -- **aliases**: //every//
--- @param l the input list.
+-- @param list the input list.
 -- @param fn the truth test function.
-local function all(l, fn)
-	local len = #l
+local function all(list, fn)
+	local len = #list
 	for i = 1, len do
-		local v = l[i]
+		local v = list[i]
 		if not fn(v) then
 			return false
 		end
@@ -392,14 +420,14 @@ local function all(l, fn)
 	return true
 end
 
---- Returns true if any value in the list //l// satisfies the truth test //fn//, false otherwise.
+--- Returns true if any value in the list //list// satisfies the truth test //fn//, false otherwise.
 -- **aliases**: //some//
--- @param l the input list.
+-- @param list the input list.
 -- @param fn the truth test function.
-local function any(l, fn)
-	local len = #l
+local function any(list, fn)
+	local len = #list
 	for i = 1, len do
-		local v = l[i]
+		local v = list[i]
 		if fn(v) then
 			return true
 		end
@@ -422,22 +450,22 @@ local function concat(...)
 	return r
 end
 
---- Returns a copy of the list //l// with any duplicate values removed.
--- @paramsig l[, is_sorted[, fn]]
--- @param l the input list.
+--- Returns a copy of the list //list// with any duplicate values removed.
+-- @paramsig list[, is_sorted[, fn]]
+-- @param list the input list.
 -- @param is_sorted an optional argument specifying if the list is sorted, allowing to use a more efficient algorithm.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
-local function uniq(l, is_sorted, fn)
-	local lm = fn and map(l, fn) or l
+local function uniq(list, is_sorted, fn)
+	local lm = fn and map(list, fn) or list
 	local r = {}
 	local seen = {}
-	local len = #l
+	local len = #list
 	for i = 1, len do
 		local v = lm[i]
 		local newv = is_sorted and (i == 1 or lm[i - 1] ~= v) or not contains(seen, v)
 		if newv then
 			tinsert(seen, v)
-			tinsert(r, l[i])
+			tinsert(r, list[i])
 		end
 	end
 	return r
@@ -450,8 +478,8 @@ local function union(...)
 end
 
 --- Returns a list constructed from the result of an iterator function.
--- @paramsig [tr, ]f, s, var
--- @param tr an optional function that is applied to the values returned by the iterator before adding them to the list.
+-- @paramsig [fn, ]f, s, var
+-- @param fn an optional function that is applied to the values returned by the iterator before adding them to the list.
 -- If omitted, the default function packs all the values returned by the iterator into a list.
 -- @param f the values returned by an iterator function.
 -- @param s the values returned by an iterator function.
@@ -514,10 +542,10 @@ local function zip(...)
 end
 
 --- Undoes a zip operation.
--- @param l a list of lists.
+-- @param list a list of lists.
 -- @see zip
-local function unzip(l)
-	return unpack(zip(unpack(l)))
+local function unzip(list)
+	return unpack(zip(unpack(list)))
 end
 
 --- Returns a function //f// such as calling //f(p1, p2, ..pn)// is equivalent to calling //fn(arg1, arg2, .. argn, p1, p2, ..pn)//.
@@ -586,6 +614,7 @@ lib.reduce_right = reduce_right
 lib.reverse = reverse
 lib.shuffle = shuffle
 lib.shuffled = shuffled
+lib.size = table_size
 lib.slice = slice
 lib.some = any
 lib.sort = sort
