@@ -309,5 +309,12 @@ local fn = require("functional");
 	assert(test({ { 1, 3, 5 }, { 2, 4, 6 } }, fn.zip({ 1, 2, 10 }, { 3, 4 }, { 5, 6 })))
 	assert(test({ { 1, 3, 5 }, { 2, 4, 6 } }, fn.zip({ 1, 2, 10 }, { 3, 4 }, { 5, 6, 20, 30 })))
 
+	-- zip_with
+	assert(test({}, fn.zip_with(function(a, b) return a + b end)))
+	assert(test({ 6, 7, 8 }, fn.zip_with(function(a) return a + 5 end, { 1, 2, 3 })))
+	assert(test({ 4, 6 }, fn.zip_with(function(a, b) return a + b end, { 1, 2 }, { 3, 4 })))
+	assert(test({ 9, 12 }, fn.zip_with(function(a, b, c) return a + b + c end, { 1, 2 }, { 3, 4 }, { 5, 6 })))
+	assert(test({ 12, 15 }, fn.zip_with(function(a, b, c) return a + b + c end, { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8 })))
+
 	print("LibFunctional-1.0: tests passed")
 end)()

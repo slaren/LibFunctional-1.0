@@ -571,6 +571,26 @@ local function unzip(list)
 	return unpack(zip(unpack(list)))
 end
 
+--- Takes any number of lists and returns a new list where each element is the result of calling the function //fn// with the values in all the passed lists at that position.
+-- If one list is shorter than the others, excess elements of the longer lists are discarded.
+-- @param ... any number of input lists.
+-- @see unzip
+local function zip_with(fn, ...)
+	local ls = { ... }
+	local n = #ls
+	if n == 0 then return {} end
+	local len = reduce(ls, function(r, v) return math_min(r, #v) end, #ls[1])
+	local r = {}
+	for i = 1, len do
+		local v = {}
+		for j = 1, n do
+			v[j] = ls[j][i]
+		end
+		r[i] = fn(unpack(v))
+	end
+	return r
+end
+
 --- Returns a function //g// such as calling //g(p1, p2, .. pn)// is equivalent to calling //fn(arg1, arg2, .. argn, p1, p2, .. pn)//.
 -- @paramsig fn, arg1[, arg2...]
 -- @param fn the input function.
@@ -651,6 +671,7 @@ lib.uniq = uniq
 lib.unzip = unzip
 lib.values = values
 lib.zip = zip
+lib.zip_with = zip_with
 
 -- allows it to work as a lua module outside of wow
 -- shouldn't have any side effects inside wow
