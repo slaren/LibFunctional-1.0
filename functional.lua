@@ -574,6 +574,7 @@ end
 
 --- Takes any number of lists and returns a new list where each element is the result of calling the function //fn// with the values in all the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.
+-- @param fn a function taking as many parameters as lists are passed to zip_with and returning a value to be inserted in the resulting list.
 -- @param ... any number of input lists.
 local function zip_with(fn, ...)
 	local ls = { ... }
@@ -581,8 +582,8 @@ local function zip_with(fn, ...)
 	if n == 0 then return {} end
 	local len = reduce(ls, function(r, v) return math_min(r, #v) end, #ls[1])
 	local r = {}
+	local v = {}
 	for i = 1, len do
-		local v = {}
 		for j = 1, n do
 			v[j] = ls[j][i]
 		end
