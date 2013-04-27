@@ -551,7 +551,7 @@ local function unzip(list)
 	return unpack(zip(unpack(list)))
 end
 
---- Returns a function //f// such as calling //f(p1, p2, ..pn)// is equivalent to calling //fn(arg1, arg2, .. argn, p1, p2, ..pn)//.
+--- Returns a function //g// such as calling //g(p1, p2, .. pn)// is equivalent to calling //fn(arg1, arg2, .. argn, p1, p2, .. pn)//.
 -- @paramsig fn, arg1[, arg2...]
 -- @param fn the input function.
 -- @param "arg1[, arg2...]" one or more arguments to be bound.
@@ -565,7 +565,7 @@ local function bind(fn, ...)
 		end]])()(fn, ...)
 end
 
---- Returns a function //f// such as calling //f(p1, p2, ..pn)// is equivalent to calling //fn(p1, p2, .. pnth, arg1, arg2, .. argn, pnth+1, pnth+2, ..pnth+n)//.
+--- Returns a function //g// such as calling //g(p1, p2, .. pn)// is equivalent to calling //fn(p1, p2, .. pnth, arg1, arg2, .. argn, pnth+1, pnth+2, .. pnth+n)//.
 -- @paramsig fn, nth, arg1[, arg2...]
 -- @param fn the input function.
 -- @param nth the position of the first argument to be bound.
