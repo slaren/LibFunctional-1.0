@@ -1,12 +1,14 @@
 local fn = require("functional");
 
 (function()
-	local function dump_table(t)
+	local dump, dump_table, test
+
+	dump_table = function(t)
 		local t = fn.map(t, function(x) return type(x) == "table" and dump(x) or tostring(x) end)
 		return "{ " .. table.concat(t, ", ") .. " }"
 	end
 
-	local function dump(v)
+	dump = function(v)
 		if type(v) == "table" then
 			return dump_table(v)
 		else
@@ -15,10 +17,10 @@ local fn = require("functional");
 	end
 
 
-	local function test(t1, t2)
+	test = function(t1, t2)
 		local eq
 		if type(t1) == "table" then
-			eq = type(t2) == "table" and fn.equal(t1, t2)
+			eq = type(t2) == "table" and fn.equal(t1, t2, true)
 		else
 			eq = t1 == t2
 		end
@@ -35,7 +37,7 @@ local fn = require("functional");
 	-- test data
 	local lst = { 1, 3, 2, 5, 4 }
 	local tbl = { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4, ["e"] = 5 }
-	function f(a1, a2, a3, a4, a5) return a1, a2, a3, a4, a5 end
+	local function f(a1, a2, a3, a4, a5) return a1, a2, a3, a4, a5 end
 
 	-- all
 	assert(test(true, fn.all({}, function(v) return v > 0 end)))
@@ -71,10 +73,22 @@ local fn = require("functional");
 	-- clone
 	assert(test({}, fn.clone({})))
 	assert(test(lst, fn.clone(lst)))
+	assert(test(tbl, fn.clone(tbl)))
+	do
+		local t = { 1, tbl }
+		local st = fn.clone(t)
+		local dt = fn.clone(t, true)
+		assert(test(t, st))
+		assert(test(t, dt))
+		assert(st[2] == tbl)
+		assert(dt[2] ~= tbl)
+	end
 
 	-- concat
 	assert(test({}, fn.concat()))
 	assert(test({}, fn.concat({}, {})))
+	assert(test({ 1 }, fn.concat({ 1 })))
+	assert(test({ 1, 2 }, fn.concat({ 1 }, { 2 })))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2, 3, 4, 5 })))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2 }, { 3, 4, 5 })))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.concat({ 1, 2 }, { 3, 4 } , { 5 })))
@@ -96,12 +110,21 @@ local fn = require("functional");
 	-- equal
 	assert(test(false, fn.equal({ 1, 2 }, { 1, 5, 7 })))
 	assert(test(true, fn.equal({ 1, 2, 3 }, { 1, 2, 3 })))
-	assert(test(true, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } })))
-	assert(test(false, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } }, true)))
+	assert(test(false, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } })))
+	assert(test(true, fn.equal({ 1, 2, { 3 } }, { 1, 2, { 3 } }, true)))
 	assert(test(true, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2, ["c"] = 3 })))
 	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 2, ["b"] = 2, ["c"] = 3 })))
 	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2, ["c"] = 3, ["d"] = 4 })))
 	assert(test(false, fn.equal({ ["a"] = 1, ["b"] = 2, ["c"] = 3 }, { ["a"] = 1, ["b"] = 2 })))
+	do
+		local t = { 1, tbl }
+		local st = fn.clone(t)
+		local dt = fn.clone(t, true)
+		assert(test(true, fn.equal(t, st))) -- shallow test
+		assert(test(false, fn.equal(t, dt)))
+		assert(test(true, fn.equal(t, st, true))) -- deep test
+		assert(test(true, fn.equal(t, dt, true)))
+	end
 
 	-- filter
 	assert(test({}, fn.filter({}, function(v) return v > 1 end)))
@@ -200,8 +223,10 @@ local fn = require("functional");
 
 	-- shuffle_inplace
 	assert(test(3, #fn.shuffle_inplace({ 1, 2, 3 })))
-	local l = fn.clone(lst)
-	assert(test(l, fn.shuffle_inplace(l)))
+	do
+		local l = fn.clone(lst)
+		assert(test(l, fn.shuffle_inplace(l)))
+	end
 
 
 	-- slice
@@ -221,8 +246,10 @@ local fn = require("functional");
 	-- sort_inplace
 	assert(test({}, fn.sort_inplace({})))
 	assert(test({ 1, 2, 3, 4, 5 }, fn.sort_inplace(fn.clone(lst))))
-	local l = fn.clone(lst)
-	assert(test(l, fn.sort_inplace(l)))
+	do
+		local l = fn.clone(lst)
+		assert(test(l, fn.sort_inplace(l)))
+	end
 
 	-- sorted_index
 	assert(test(1, fn.sorted_index({}, 4)))

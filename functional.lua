@@ -60,15 +60,15 @@ local function table_size(tbl)
 end
 
 --- Returns true if the table //tbl1// has the same keys and values than the table //tbl2//.
--- @paramsig tbl1, tbl2[, shallow]
+-- @paramsig tbl1, tbl2[, deep]
 -- @param tbl1 first table.
 -- @param tbl2 second table.
--- @param shallow if false or omitted, table values inside the tables are compared recursively, otherwise they are compared by their reference.
-local function equal(tbl1, tbl2, shallow)
+-- @param deep if true, table values inside the tables are compared recursively, otherwise a shallow comparison is made. Note that if the tables contains cyclic references this function will fail to perform a deep comparison.
+local function equal(tbl1, tbl2, deep)
 	if #tbl1 ~= #tbl2 then return false end
 	local count1 = 0
 	for k, v in pairs(tbl1) do
-		if not shallow and type(v) == "table" then
+		if deep and type(v) == "table" then
 			if not equal(v, tbl2[k]) then return false end
 		elseif tbl2[k] ~= v then return false end
 		count1 = count1 + 1
@@ -86,12 +86,18 @@ local function invert(tbl)
 	return r
 end
 
---- Returns a shallow copy of the list //list//.
--- @param list the input list.
-local function clone(list)
+--- Returns a copy of the table //tbl//.
+-- @paramsig tbl[, deep]
+-- @param tbl the input table.
+-- @param deep if true, table values inside the tables are copied recursively, otherwise a shallow copy is made. Note that if the tables contains cyclic references this function will fail to perform a deep copy.
+local function clone(tbl, deep)
 	local r = {}
-	for i = 1, #list do
-		r[i] = list[i]
+	for k, v in pairs(tbl) do
+		if deep and type(v) == "table" then
+			r[k] = clone(v)
+		else
+			r[k] = v
+		end
 	end
 	return r
 end
