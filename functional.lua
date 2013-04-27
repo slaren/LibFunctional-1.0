@@ -15,6 +15,19 @@ local tinsert, tsort, tconcat = table.insert, table.sort, table.concat
 local pairs, next, select, type, unpack, loadstring = pairs, next, select, type, unpack, loadstring
 local math_min, math_max, math_floor, math_random = math.min, math.max, math.floor, math.random
 
+--- Returns a new table with the keys and values of all the passed tables.
+-- If a key is present in more than one of the tables, the value from the rightmost table in the argument list is used.
+-- @param ... any number of input tables.
+local function merge(...)
+	local r = {}
+	for i = 1, select("#", ...) do
+		for k, v in pairs(select(i, ...)) do
+			r[k] = v
+		end
+	end
+	return r
+end
+
 --- Returns a list of keys in the table //tbl//.
 -- @param tbl the input table.
 local function keys(tbl)
@@ -63,17 +76,15 @@ end
 -- @paramsig tbl1, tbl2[, deep]
 -- @param tbl1 first table.
 -- @param tbl2 second table.
--- @param deep if true, table values inside the tables are compared recursively, otherwise a shallow comparison is made. Note that if the tables contains cyclic references this function will fail to perform a deep comparison.
+-- @param deep optional, if true, table values inside the tables are compared recursively, otherwise a shallow comparison is made. Note that if the tables contains cyclic references this function will fail to perform a deep comparison.
 local function equal(tbl1, tbl2, deep)
-	if #tbl1 ~= #tbl2 then return false end
-	local count1 = 0
+	if table_size(tbl1) ~= table_size(tbl2) then return false end
 	for k, v in pairs(tbl1) do
 		if deep and type(v) == "table" then
-			if not equal(v, tbl2[k]) then return false end
+			if not equal(v, tbl2[k], deep) then return false end
 		elseif tbl2[k] ~= v then return false end
-		count1 = count1 + 1
 	end
-	return count1 == table_size(tbl2)
+	return true
 end
 
 --- Returns a copy of the table //tbl// with its values as keys and its keys as values.
@@ -89,12 +100,12 @@ end
 --- Returns a copy of the table //tbl//.
 -- @paramsig tbl[, deep]
 -- @param tbl the input table.
--- @param deep if true, table values inside the tables are copied recursively, otherwise a shallow copy is made. Note that if the tables contains cyclic references this function will fail to perform a deep copy.
+-- @param deep optional, if true, table values inside the table are copied recursively, otherwise a shallow copy is made. Note that if the tables contains cyclic references this function will fail to perform a deep copy.
 local function clone(tbl, deep)
 	local r = {}
 	for k, v in pairs(tbl) do
 		if deep and type(v) == "table" then
-			r[k] = clone(v)
+			r[k] = clone(v, deep)
 		else
 			r[k] = v
 		end
@@ -159,7 +170,7 @@ end
 --- Returns a copy of the list //list// with any nested lists flattened to a single level.
 -- @paramsig list[, shallow]
 -- @param list the input list.
--- @param shallow optional, if set to true only flattens a single level
+-- @param shallow optional, if set to true only flattens a single level.
 local function flatten(l, shallow, output)
 	local r = output or {}
 	local len = #l
@@ -400,7 +411,7 @@ end
 
 --- Performs an in-place sort of the list //list// and returns it.
 -- @paramsig list[, comp]
--- @param list the input list
+-- @param list the input list.
 -- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
 local function sort_inplace(list, comp)
 	tsort(list, comp)
@@ -618,6 +629,7 @@ lib.invert = invert
 lib.keys = keys
 lib.map = map
 lib.max = max
+lib.merge = merge
 lib.min = min
 lib.pairs = table_pairs
 lib.range = range

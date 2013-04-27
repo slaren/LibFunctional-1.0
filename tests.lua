@@ -182,6 +182,13 @@ local fn = require("functional");
 	assert(test(nil, fn.max({})))
 	assert(test(5, fn.max(lst)))
 
+	-- merge
+	assert(test({}, fn.merge()))
+	assert(test({ 2, 3 }, fn.merge({ 1 }, {}, { 2, 3 })))
+	assert(test({ 2, 3 }, fn.merge({ 1 }, {}, { 1, 3 }, { 2 })))
+	assert(test({ ["a"] = 1, ["b"] = 2 }, fn.merge({ ["a"] = 1 }, { ["b"] = 2 })))
+	assert(test({ ["a"] = 1, ["b"] = 3, ["c"] = 4 }, fn.merge({ ["a"] = 1, ["b"] = 2 }, { ["b"] = 5 }, { ["b"] = 3, ["c"] = 4 })))
+
 	-- min
 	assert(test(nil, fn.min({})))
 	assert(test(2, fn.min({ 2 })))
@@ -227,7 +234,6 @@ local fn = require("functional");
 		local l = fn.clone(lst)
 		assert(test(l, fn.shuffle_inplace(l)))
 	end
-
 
 	-- slice
 	assert(test({ }, fn.slice({}, 0)))
