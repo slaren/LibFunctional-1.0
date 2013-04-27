@@ -197,6 +197,7 @@ local fn = require("functional");
 	-- pairs
 	assert(test({}, fn.pairs({})))
 	assert(test({ { "a", 1 }, { "b", 2 } }, fn.pairs({ ["a"] = 1, ["b"] = 2 })))
+	assert(test(fn.zip(fn.keys(tbl), fn.values(tbl)), fn.pairs(tbl)))
 
 	-- range
 	assert(test({}, fn.range(0)))

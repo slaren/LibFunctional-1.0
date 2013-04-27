@@ -49,6 +49,7 @@ local function values(tbl)
 end
 
 --- Returns a list of ##{ key, value }## pairs in the table //tbl//.
+-- This function is equivalent to ##zip(keys(tbl), values(tbl))##.
 -- @name pairs
 -- @param tbl the input table.
 local function table_pairs(tbl)
@@ -574,7 +575,6 @@ end
 --- Takes any number of lists and returns a new list where each element is the result of calling the function //fn// with the values in all the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.
 -- @param ... any number of input lists.
--- @see unzip
 local function zip_with(fn, ...)
 	local ls = { ... }
 	local n = #ls
