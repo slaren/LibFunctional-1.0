@@ -132,7 +132,7 @@ end
 
 --- Shuffles the list //list// in-place using the Fisher–Yates algorithm and returns it.
 -- @param list the input list.
-local function shuffle(list)
+local function shuffle_inplace(list)
 	local j = #list
 	while (j > 0) do
 		local i = math_random(j)
@@ -146,8 +146,8 @@ end
 
 --- Returns a copy of the list //list// shuffled using the Fisher–Yates algorithm.
 -- @param list the input list.
-local function shuffled(list)
-	return shuffle(clone(list))
+local function shuffle(list)
+	return shuffle_inplace(clone(list))
 end
 
 --- Returns a copy of the list //list// with any nested lists flattened to a single level.
@@ -372,28 +372,31 @@ local function reduce_right(list, fn, initial)
 end
 
 --- Returns a sum of all the values in the list //list//.
+-- This function is equivalent to ##reduce(list, function(a, b) return a + b end)##.
 -- @param list the input list.
 local function sum(list)
 	return reduce(list, function(a, b) return a + b end)
 end
 
 --- Returns the minimum value in the list //list//.
+-- This function is equivalent to ##reduce(list, math.min)##.
 -- @param list the input list.
 local function min(list)
 	return reduce(list, math_min)
 end
 
 --- Returns the maximum value in the list //list//.
+-- This function is equivalent to ##reduce(list, math.max)##.
 -- @param list the input list.
 local function max(list)
 	return reduce(list, math_max)
 end
 
---- Performs an in-place sort of the list //list//.
+--- Performs an in-place sort of the list //list// and returns it.
 -- @paramsig list[, comp]
 -- @param list the input list
 -- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
-local function sort(list, comp)
+local function sort_inplace(list, comp)
 	tsort(list, comp)
 	return list
 end
@@ -402,7 +405,7 @@ end
 -- @paramsig list[, comp]
 -- @param list the input list.
 -- @param comp an optional comparison function that receives two values and returns true when the first is less than the second.
-local function sorted(list, comp)
+local function sort(list, comp)
 	local r = clone(list)
 	tsort(r, comp)
 	return r
@@ -616,12 +619,12 @@ lib.reduce = reduce
 lib.reduce_right = reduce_right
 lib.reverse = reverse
 lib.shuffle = shuffle
-lib.shuffled = shuffled
+lib.shuffle_inplace = shuffle_inplace
 lib.size = table_size
 lib.slice = slice
 lib.some = any
 lib.sort = sort
-lib.sorted = sorted
+lib.sort_inplace = sort_inplace
 lib.sorted_index = sorted_index
 lib.sorted_insert = sorted_insert
 lib.sum = sum

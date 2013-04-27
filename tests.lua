@@ -51,12 +51,12 @@ local fn = require("functional");
 
 	-- binary_search
 	assert(test({}, { fn.binary_search({}, 1) }))
-	assert(test({ 1, 1 }, { fn.binary_search(fn.sorted(lst), 1) } ))
-	assert(test({ 2, 2 }, { fn.binary_search(fn.sorted(lst), 2) } ))
-	assert(test({ 3, 3 }, { fn.binary_search(fn.sorted(lst), 3) } ))
-	assert(test({ 4, 4 }, { fn.binary_search(fn.sorted(lst), 4) } ))
-	assert(test({ 5, 5 }, { fn.binary_search(fn.sorted(lst), 5) } ))
-	assert(test({}, { fn.binary_search(fn.sorted(lst), 6) }))
+	assert(test({ 1, 1 }, { fn.binary_search(fn.sort(lst), 1) } ))
+	assert(test({ 2, 2 }, { fn.binary_search(fn.sort(lst), 2) } ))
+	assert(test({ 3, 3 }, { fn.binary_search(fn.sort(lst), 3) } ))
+	assert(test({ 4, 4 }, { fn.binary_search(fn.sort(lst), 4) } ))
+	assert(test({ 5, 5 }, { fn.binary_search(fn.sort(lst), 5) } ))
+	assert(test({}, { fn.binary_search(fn.sort(lst), 6) }))
 
 	-- bind
 	assert(test({ 1, 2 }, { fn.bind(f, 1)(2) }))
@@ -149,7 +149,7 @@ local fn = require("functional");
 
 	-- keys
 	assert(test({}, fn.keys({})))
-	assert(test({ "a", "b", "c", "d", "e" }, fn.sorted(fn.keys(tbl))))
+	assert(test({ "a", "b", "c", "d", "e" }, fn.sort(fn.keys(tbl))))
 
 	-- map
 	assert(test({}, fn.map({})))
@@ -198,8 +198,11 @@ local fn = require("functional");
 	-- shuffle
 	assert(test(3, #fn.shuffle({ 1, 2, 3 })))
 
-	-- shuffled
-	assert(test(3, #fn.shuffled({ 1, 2, 3 })))
+	-- shuffle_inplace
+	assert(test(3, #fn.shuffle_inplace({ 1, 2, 3 })))
+	local l = fn.clone(lst)
+	assert(test(l, fn.shuffle_inplace(l)))
+
 
 	-- slice
 	assert(test({ }, fn.slice({}, 0)))
@@ -212,12 +215,14 @@ local fn = require("functional");
 
 	-- sort
 	assert(test({}, fn.sort({})))
-	assert(test({ 1, 2, 3, 4, 5 }, fn.sort(fn.clone(lst))))
-
-	-- sorted
-	assert(test({}, fn.sorted({})))
-	assert(test({ 1, 2, 3, 4, 5 }, fn.sorted(lst)))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sort(lst)))
 	assert(test({ 1, 3, 2, 5, 4 }, lst))
+
+	-- sort_inplace
+	assert(test({}, fn.sort_inplace({})))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sort_inplace(fn.clone(lst))))
+	local l = fn.clone(lst)
+	assert(test(l, fn.sort_inplace(l)))
 
 	-- sorted_index
 	assert(test(1, fn.sorted_index({}, 4)))
@@ -260,7 +265,7 @@ local fn = require("functional");
 	assert(test({ { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } }, { fn.unzip({ { 1, 4, 7 }, { 2, 5, 8 }, { 3, 6, 9 } }) }))
 
 	-- values
-	assert(test({ 1, 2, 3, 4, 5 }, fn.sorted(fn.values(tbl))))
+	assert(test({ 1, 2, 3, 4, 5 }, fn.sort(fn.values(tbl))))
 
 	-- zip
 	assert(test({}, fn.zip({})))
