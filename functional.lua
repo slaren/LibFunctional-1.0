@@ -15,6 +15,10 @@ local tinsert, tsort, tconcat = table.insert, table.sort, table.concat
 local pairs, next, select, type, unpack, loadstring = pairs, next, select, type, unpack, loadstring
 local math_min, math_max, math_floor, math_random = math.min, math.max, math.floor, math.random
 
+local function identity(x)
+	return x
+end
+
 --- Returns a new table with the keys and values of all the passed tables.
 -- If a key is present in more than one of the tables, the value from the rightmost table in the argument list is used.
 -- @param ... any number of input tables.
@@ -248,11 +252,13 @@ end
 -- **aliases**: //elem//
 -- @param list the input list.
 -- @param value the value to search for.
-local function contains(list, value)
+-- @param fn an optional function to apply to each value in the list before comparing it to //value//.
+local function contains(list, value, fn)
+	local fn = fn or identity
 	local r = {}
 	local len = #list
 	for i = 1, len do
-		if list[i] == value then
+		if fn(list[i]) == value then
 			return true
 		end
 	end
@@ -309,7 +315,7 @@ end
 -- @param value the value to search for.
 -- @param fn an optional function that is applied to each value in the list before performing the comparison.
 local function sorted_index(list, value, fn)
-	fn = fn or function(x) return x end
+	fn = fn or identity
 	local lo = 1
 	local hi = #list
 	while lo < hi do
@@ -501,6 +507,49 @@ local function union(...)
 	return uniq(concat(...))
 end
 
+local function get_set_params(...)
+	local fn = identity
+	local a = select(1, ...)
+	local others
+	if type(a) == "function" then
+		fn = a
+		a = select(2, ...)
+		others = { select(3, ...) }
+	else
+		others = { select(2, ...) }
+	end
+
+	return fn, a, others
+end
+
+--- Returns a list containing all the items in the first list that are not present in any of the rest.
+-- @paramsig [fn, ]list1, [list2...]
+-- @param fn an optional function to apply to each value in the list before performing the comparison.
+-- @param list two or more input lists.
+local function difference(...)
+	local fn, a, others = get_set_params(...)
+
+	return filter(a, function(xa)
+		return all(others, function(other)
+			return not contains(other, fn(xa), fn)
+		end)
+	end)
+end
+
+--- Returns a list containing all the items that are present in all the input lists.
+-- @paramsig [fn, ]list1, [list2...]
+-- @param fn an optional function to apply to each value in the list before performing the comparison.
+-- @param list two or more input lists.
+local function intersection(...)
+	local fn, a, others = get_set_params(...)
+
+	return filter(a, function(xa)
+		return all(others, function(other)
+			return contains(other, fn(xa), fn)
+		end)
+	end)
+end
+
 --- Returns a list constructed from the result of an iterator function.
 -- @paramsig [fn, ]f, s, var
 -- @param fn an optional function that is applied to the values returned by the iterator before adding them to the list.
@@ -633,6 +682,7 @@ lib.bind_nth = bind_nth
 lib.clone = clone
 lib.concat = concat
 lib.contains = contains
+lib.difference = difference
 lib.each = each
 lib.elem = contains
 lib.equal = equal
@@ -646,6 +696,7 @@ lib.foldl = reduce
 lib.foldr = reduce_right
 lib.for_each = each
 lib.from_iterator = from_iterator
+lib.intersection = intersection
 lib.invert = invert
 lib.keys = keys
 lib.map = map

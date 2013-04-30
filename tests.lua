@@ -16,7 +16,6 @@ local fn = require("functional");
 		end
 	end
 
-
 	test = function(t1, t2)
 		local eq
 		if type(t1) == "table" then
@@ -99,6 +98,14 @@ local fn = require("functional");
 	assert(test(false, fn.contains(lst, 6)))
 	assert(test(fn.elem, fn.contains))
 
+	-- difference
+	assert(test({}, fn.difference({})))
+	assert(test({ 1, 2, 3 }, fn.difference({ 1, 2, 3, 4, 5 }, { 4, 5 })))
+	assert(test({ 1, 2 }, fn.difference({ 1, 2, 3, 4, 5 }, { 3 }, { 4, 5 })))
+	assert(test({ 1 }, fn.difference({ 1, 2, 3, 4, 5 }, { 2, 3 }, { 4, 5, 6 }, { 2, 3, 4, 6 })))
+	assert(test({ }, fn.difference({ 1, 2, 3, 4, 5 }, { 1, 2, 3 }, { 4, 5, 6 })))
+	assert(test({ "a", "bc" }, fn.difference(function(s) return #s end, { "a", "bc", "def" }, { "123" })))
+
 	-- each
 	do
 		local n = 0
@@ -169,6 +176,15 @@ local fn = require("functional");
 	assert(test({}, fn.invert({})))
 	assert(test({ ["v"] = "k" }, fn.invert({ ["k"] = "v" })))
 	assert(test({ "a", "b", "c", "d", "e" }, fn.invert(tbl)))
+
+	-- intersection
+	assert(test({}, fn.intersection({})))
+	assert(test({ 4, 5 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 4, 5 })))
+	assert(test({ 5 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 3, 5 }, { 4, 5 })))
+	assert(test({ 1 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 1, 2, 3 }, { 4, 5, 1, 6 }, { 2, 1, 3, 4, 6 })))
+	assert(test({ }, fn.intersection({ 1, 2, 3, 4, 5 }, { 1, 2, 3 }, { 4, 5, 1, 6 }, { 2, 3, 4, 6 })))
+	assert(test({ }, fn.intersection({ 1, 2, 3, 4, 5 }, { 1, 2, 3 }, { 4, 5, 6 })))
+	assert(test({ "def" }, fn.intersection(function(s) return #s end, { "a", "bc", "def" }, { "123" })))
 
 	-- keys
 	assert(test({}, fn.keys({})))
