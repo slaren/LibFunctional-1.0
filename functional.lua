@@ -535,8 +535,8 @@ local function difference(...)
 	end)
 end
 
---- Returns a list containing all the items that are present in all the input lists.
--- If the first list passed contains the same value multiple times, it appear multiple times in the output list. Use //uniq// on the first list if you want to prevent this.
+--- Returns a list containing all the items that are present in all of the input lists.
+-- If the first list passed contains the same value multiple times, it may appear multiple times in the output list. Use //uniq// on the first list if you want to prevent this.
 -- @paramsig [fn, ]list1, [list2...]
 -- @param fn an optional function to apply to each value in the list before performing the comparison.
 -- @param list two or more input lists.
@@ -593,7 +593,7 @@ local function from_iterator(...)
 	return r
 end
 
---- Takes any number of lists and returns a new list where each element is a list of the values in all the passed lists at that position.
+--- Takes any number of lists and returns a new list where each element is a list of the values in all of the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.
 -- @param ... any number of input lists.
 -- @see unzip
@@ -620,7 +620,7 @@ local function unzip(list)
 	return unpack(zip(unpack(list)))
 end
 
---- Takes any number of lists and returns a new list where each element is the result of calling the function //fn// with the values in all the passed lists at that position.
+--- Takes any number of lists and returns a new list where each element is the result of calling the function //fn// with the values in all of the passed lists at that position.
 -- If one list is shorter than the others, excess elements of the longer lists are discarded.
 -- @param fn a function taking as many parameters as lists are passed to zip_with and returning a value to be inserted in the resulting list.
 -- @param ... any number of input lists.
