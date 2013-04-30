@@ -528,7 +528,6 @@ end
 -- @param list two or more input lists.
 local function difference(...)
 	local fn, a, others = get_set_params(...)
-
 	return filter(a, function(xa)
 		return all(others, function(other)
 			return not contains(other, fn(xa), fn)
@@ -537,12 +536,12 @@ local function difference(...)
 end
 
 --- Returns a list containing all the items that are present in all the input lists.
+-- If the first list passed contains the same value multiple times, it appear multiple times in the output list. Use //uniq// on the first list if you want to prevent this.
 -- @paramsig [fn, ]list1, [list2...]
 -- @param fn an optional function to apply to each value in the list before performing the comparison.
 -- @param list two or more input lists.
 local function intersection(...)
 	local fn, a, others = get_set_params(...)
-
 	return filter(a, function(xa)
 		return all(others, function(other)
 			return contains(other, fn(xa), fn)

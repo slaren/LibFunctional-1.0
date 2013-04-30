@@ -179,6 +179,7 @@ local fn = require("functional");
 
 	-- intersection
 	assert(test({}, fn.intersection({})))
+	assert(test({ 4, 4, 5 }, fn.intersection({ 1, 4, 2, 3, 4, 5 }, { 4, 5 })))
 	assert(test({ 4, 5 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 4, 5 })))
 	assert(test({ 5 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 3, 5 }, { 4, 5 })))
 	assert(test({ 1 }, fn.intersection({ 1, 2, 3, 4, 5 }, { 1, 2, 3 }, { 4, 5, 1, 6 }, { 2, 1, 3, 4, 6 })))
