@@ -175,7 +175,7 @@ end
 --- Returns a copy of the list //list// with any nested lists flattened to a single level.
 -- @paramsig list[, shallow]
 -- @param list the input list.
--- @param shallow optional, if set to true only flattens a single level.
+-- @param shallow optional, if set to true only flattens the first level.
 local function flatten(l, shallow, output)
 	local r = output or {}
 	local len = #l
