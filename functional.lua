@@ -255,7 +255,6 @@ end
 -- @param fn an optional function to apply to each value in the list before comparing it to //value//.
 local function contains(list, value, fn)
 	local fn = fn or identity
-	local r = {}
 	local len = #list
 	for i = 1, len do
 		if fn(list[i]) == value then
@@ -270,7 +269,6 @@ end
 -- @param ... one or more values to search for.
 local function find_first_of(list, ...)
 	local vs = { ... }
-	local r = {}
 	local len = #list
 	for i = 1, len do
 		local lv = list[i]
@@ -285,7 +283,6 @@ end
 -- @param ... one or more values to search for.
 local function find_last_of(list, ...)
 	local vs = { ... }
-	local r = {}
 	local len = #list
 	for i = len, 1, -1 do
 		local lv = list[i]
@@ -299,7 +296,6 @@ end
 -- @param list the input list.
 -- @param fn the truth test function.
 local function find_if(list, fn)
-	local r = {}
 	local len = #list
 	for i = 1, len do
 		local v = list[i]
