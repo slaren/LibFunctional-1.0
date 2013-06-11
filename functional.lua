@@ -1,4 +1,4 @@
-local version = 1
+local version = 2
 local lib
 
 -- allow it to work outside of wow for testing purposes
